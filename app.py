@@ -42,6 +42,7 @@ def add_markers(figure_data, molecules, plot_type='scatter3d'):
         trace = dict(
             x=[drug_data['x'][point_number]],
             y=[drug_data['y'][point_number]],
+            showlegend=False,
             marker=dict(
                 color='red',
                 size=16,
@@ -67,7 +68,7 @@ COLORSCALE = [[0, "rgb(244,236,21)"], [0.3, "rgb(249,210,41)"], [0.4, "rgb(134,1
 
 def scatter_plot_3d(
         target_df=None,
-        target=['Dihydrofolate reductase'],
+        targets=('Dihydrofolate reductase'),
         x_type='le',
         y_type='lle',
         z_type='rank',
@@ -101,64 +102,72 @@ def scatter_plot_3d(
         axis['color'] = 'white'
         return axis
 
-    if target_df is None:
-        target_df = df[df['target'] == target[0]]
+    data = []
+    for target in targets:
+        target_df = df[df['target'] == target]
 
-    if z_type == 'rank':
-        target_df['combined'] =  target_df[y_type] * target_df[x_type]
-        target_df = target_df.sort_values(by=['combined'])
-        z = [a for a in xrange(0, len(target_df['combined'].tolist()))]
+        if z_type == 'rank':
+            target_df['combined'] =  target_df[y_type] * target_df[x_type]
+            target_df = target_df.sort_values(by=['combined'])
+            z = [a for a in xrange(0, len(target_df['combined'].tolist()))]
 
-    else:
-        z = [a for a in target_df[z_type].tolist()]
+        else:
+            z = [a for a in target_df[z_type].tolist()]
 
-    x = [b for b in target_df[x_type].tolist()]
-    y = [c for c in target_df[y_type].tolist()]
+        x = [b for b in target_df[x_type].tolist()]
+        y = [c for c in target_df[y_type].tolist()]
 
-    size = [(n + 1) * 300 for n in target_df[size_type].tolist()]
-    drugs = target_df[target_df['max_phase'] ==4]
+        size = [(n + 1) * 300 for n in target_df[size_type].tolist()]
+        drugs = target_df[target_df['max_phase'] ==4]
+        markers = []
+        markers = markers + drugs['cmpd_chemblid'].tolist()
 
-    markers = drugs['cmpd_chemblid'].tolist()
+
+        # if color_type == 'rank':
+        #     try:
+        #         color = [a for a in xrange(0, len(target_df['combined'].tolist()))]
+        #     except KeyError:
+        #         target_df['combined'] = target_df[y_type] * target_df[x_type]
+        #         color = [a for a in xrange(0, len(target_df['combined'].tolist()))]
+        # else:
+        #     color = [d for d in target_df[color_type].tolist()]
+        color = z
+        xlabel = x_type
+        ylabel = y_type
+        zlabel = z_type
+
+        data.append(dict(
+            x=x,
+            y=y,
+            z=z,
+            name=target,
+            mode='markers',
+            marker=dict(
+                colorscale='Viridis',
+                # colorbar=dict(title="Molecular<br>Weight"),
+                showscale=False,
+                line=dict(color='#444'),
+                sizeref=45,
+                sizemode='diameter',
+                opacity=0.7,
+                size=size,
+                color=color,
+            ),
+            text=target_df['cmpd_chemblid'].tolist(),
+            type=plot_type,
+        ))
+
+        if len(markers) > 0:
+            data = data + add_markers(data, markers, plot_type=plot_type)
 
 
-    # if color_type == 'rank':
-    #     try:
-    #         color = [a for a in xrange(0, len(target_df['combined'].tolist()))]
-    #     except KeyError:
-    #         target_df['combined'] = target_df[y_type] * target_df[x_type]
-    #         color = [a for a in xrange(0, len(target_df['combined'].tolist()))]
-    # else:
-    #     color = [d for d in target_df[color_type].tolist()]
-    color = z
-    xlabel = x_type
-    ylabel = y_type
-    zlabel = z_type
-
-    data = [dict(
-        x=x,
-        y=y,
-        z=z,
-        mode='markers',
-        marker=dict(
-            colorscale='Viridis',
-            # colorbar=dict(title="Molecular<br>Weight"),
-            showscale=False,
-            line=dict(color='#444'),
-            sizeref=45,
-            sizemode='diameter',
-            opacity=0.7,
-            size=size,
-            color=color,
-        ),
-        text=target_df['cmpd_chemblid'].tolist(),
-        type=plot_type,
-    )]
 
     layout = dict(
         font=dict(family='Raleway'),
         hovermode='closest',
         margin=dict(r=20, t=0, l=0, b=0),
-        showlegend=False,
+        showlegend=True,
+        legend=dict(orientation="h"),
 
         scene=dict(
             xaxis=axis_template_3d(xlabel),
@@ -187,7 +196,7 @@ def scatter_plot_3d(
             x=x,
             y=y,
             type='histogram2d',
-            colorscale='Viridis',#'Greys',
+            colorscale='Greys',
             showscale=False
         ))
         layout['plot_bgcolor'] = 'black'
@@ -196,8 +205,7 @@ def scatter_plot_3d(
         layout['yaxis'] = blackout_axis(layout['yaxis'])
         layout['font']['color'] = 'white'
 
-    if len(markers) > 0:
-        data = data + add_markers(data, markers, plot_type=plot_type)
+
 
     return dict(data=data, layout=layout)
 
@@ -215,7 +223,7 @@ app.layout = html.Div([
     html.Div([
         html.Div([
             html.Div([
-                html.P('SELECT a target in the dropdown to display its compounds in the graph'),
+                html.P('SELECT one or more targets in the dropdown to display their compounds in the graph'),
                 html.P('CLICK on a compound in the graph to see its structure to the left.'),
                 html.P('SELECT new axes from the dropdowns below. In all plots, the z axis will determine the colour'),
                 html.P('Phase 4 compounds are marked with a red cross')
@@ -315,7 +323,8 @@ app.layout = html.Div([
      Input('z_dropdown', 'value'),
      ])
 def highlight_molecule(chem_dropdown_values, plot_type, x_type, y_type, z_type):
-    return scatter_plot_3d(target=chem_dropdown_values, plot_type=plot_type, x_type=x_type, y_type=y_type, z_type=z_type)
+    print(chem_dropdown_values)
+    return scatter_plot_3d(targets=chem_dropdown_values, plot_type=plot_type, x_type=x_type, y_type=y_type, z_type=z_type)
 
 
 # @app.callback(
