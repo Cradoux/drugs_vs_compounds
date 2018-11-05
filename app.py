@@ -119,7 +119,7 @@ def scatter_plot_3d(
     drugs = target_df[target_df['max_phase'] ==4]
 
     #markers = drugs['cmpd_chemblid'].tolist()
-    print target_df
+
 
     # if color_type == 'rank':
     #     try:
@@ -354,7 +354,7 @@ def highlight_molecule(chem_dropdown_values, plot_type, x_type, y_type, z_type):
     [Input('clickable-graph', 'clickData')])
 def display_image(hoverData):
     cmpd_id = hoverData['points'][0]['text']
-    print cmpd_id
+
     img_src = 'https://www.ebi.ac.uk/chembl/beta/embed/#mini_report_card/Compound/{}'.format(cmpd_id)
     return img_src
 
