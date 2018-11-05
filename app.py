@@ -12,11 +12,11 @@ app = dash.Dash('chembl-explorer')
 server = app.server
 
 df = pd.read_csv('lle_data.csv').drop(['target_chemblid.1', 'molregno.1','mw_monoisotopic','ro3_pass', 'full_mwt',
-                                       'num_compounds', 'hba_lipinski', 'hbd_lipinski'],
+                                       'num_compounds', 'hba_lipinski', 'hbd_lipinski','full_molformula','molecular_species'],
                                       axis=1)
 
 axes_opts = [{'label': i, 'value': i} for i in df.columns if i not in ['target_chemblid','cmpd_chemblid',
-                                                                       'full_molformula', 'target','molecular_species']]
+                                                                        'target']]
 
 axes_opts.append({'label':'rank X * Y','value':'rank'})
 
