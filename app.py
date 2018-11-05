@@ -11,7 +11,7 @@ import os
 app = dash.Dash('chembl-explorer')
 server = app.server
 
-df = pd.read_csv('lle_data.csv').drop(['target_chemblid.1', 'molregno.1','Unnamed: 0', 'Unnamed: 0.1'],
+df = pd.read_csv('lle_data.csv').drop(['target_chemblid.1', 'molregno.1'],
                                       axis=1)
 
 axes_opts = [{'label': i, 'value': i} for i in df.columns if i not in ['target_chemblid','cmpd_chemblid',
@@ -116,9 +116,9 @@ def scatter_plot_3d(
     y = [c for c in target_df[y_type].tolist()]
 
     size = [(n + 1) * 200 for n in target_df[size_type].tolist()]
-    drugs = target_df[target_df['max_phase'] ==4]
-
-    #markers = drugs['cmpd_chemblid'].tolist()
+    # drugs = target_df[target_df['max_phase'] ==4]
+    #
+    # markers = drugs['cmpd_chemblid'].tolist()
 
 
     # if color_type == 'rank':
