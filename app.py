@@ -115,10 +115,10 @@ def scatter_plot_3d(
     x = [b for b in target_df[x_type].tolist()]
     y = [c for c in target_df[y_type].tolist()]
 
-    size = [(n + 1) * 200 for n in target_df[size_type].tolist()]
-    # drugs = target_df[target_df['max_phase'] ==4]
-    #
-    # markers = drugs['cmpd_chemblid'].tolist()
+    size = [(n + 1) * 300 for n in target_df[size_type].tolist()]
+    drugs = target_df[target_df['max_phase'] ==4]
+
+    markers = drugs['cmpd_chemblid'].tolist()
 
 
     # if color_type == 'rank':
