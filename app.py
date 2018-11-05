@@ -11,7 +11,7 @@ import os
 app = dash.Dash('chembl-explorer')
 server = app.server
 
-df = pd.read_csv('lle_data.csv').drop(['target_chemblid.1', 'molregno.1'],
+df = pd.read_csv('lle_data.csv').drop(['target_chemblid.1', 'molregno.1','mw_monoisotopic','ro3_pass', 'full_mwt','num_compounds'],
                                       axis=1)
 
 axes_opts = [{'label': i, 'value': i} for i in df.columns if i not in ['target_chemblid','cmpd_chemblid',
