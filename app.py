@@ -120,15 +120,6 @@ def scatter_plot_3d(
         markers = []
         markers = markers + drugs['cmpd_chemblid'].tolist()
 
-
-        # if color_type == 'rank':
-        #     try:
-        #         color = [a for a in xrange(0, len(target_df['combined'].tolist()))]
-        #     except KeyError:
-        #         target_df['combined'] = target_df[y_type] * target_df[x_type]
-        #         color = [a for a in xrange(0, len(target_df['combined'].tolist()))]
-        # else:
-        #     color = [d for d in target_df[color_type].tolist()]
         color = z
         xlabel = x_type
         ylabel = y_type
@@ -242,10 +233,6 @@ app.layout = html.Div([
 
             # html.Img(id='chem_img', src=DRUG_IMG, style=dict(width='100%')),
             html.Iframe(
-                # enable all sandbox features
-                # see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe
-                # this prevents javascript from running inside the iframe
-                # and other things security reasons
                 id='chem_img',
                 src="https://www.ebi.ac.uk/chembl/beta/embed/#mini_report_card/Compound/CHEMBL34259",
                 style={'width': '100%', 'border': 'none'}
@@ -300,17 +287,10 @@ app.layout = html.Div([
 
     ], className='row'),
 
-    # html.Div(id='signal', style={'display': 'none'}),
 
 ], className='container')
 
 
-# # Store JSON in hidden div
-# @app.callback(Output('signal', 'children'), [Input('chem_dropdown', 'value')])
-# def global_store(n, value):
-#     print('Computing value with {}'.format(value))
-#     target_df = df[df['target'] ==value]
-#     return target_df.to_json()
 
 @app.callback(
     Output('clickable-graph', 'figure'),
@@ -323,36 +303,6 @@ app.layout = html.Div([
 def highlight_molecule(chem_dropdown_values, plot_type, x_type, y_type, z_type):
     print(chem_dropdown_values)
     return scatter_plot_3d(targets=chem_dropdown_values, plot_type=plot_type, x_type=x_type, y_type=y_type, z_type=z_type)
-
-
-# @app.callback(
-#     State('signal','value'))
-# def dfRowFromHover(hoverData, value):
-#     ''' Returns row for hover point as a Pandas Series '''
-#     print hoverData
-#     print value
-#     if hoverData is not None:
-#         if 'points' in hoverData:
-#             firstPoint = hoverData['points'][0]
-#             if 'pointNumber' in firstPoint:
-#                 point_number = firstPoint['pointNumber']
-#                 molecule_name = str(FIGURE['data'][0]['text'][point_number]).strip()
-#                 return df.loc[df['cmpd_chemblid'] == molecule_name]
-#     return pd.Series()
-
-#
-# @app.callback(
-#     Output('chem_name', 'children'),
-#     [Input('clickable-graph', 'hoverData')])
-# def return_molecule_name(hoverData):
-#     if hoverData is not None:
-#         if 'points' in hoverData:
-#             firstPoint = hoverData['points'][0]
-#             if 'pointNumber' in firstPoint:
-#                 point_number = firstPoint['pointNumber']
-#                 molecule_name = str(FIGURE['data'][0]['text'][point_number]).strip()
-#                 return molecule_name
-
 
 
 
