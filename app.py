@@ -7,6 +7,7 @@ import flask
 import json
 from flask_cors import CORS
 import os
+import numpy as np
 
 app = dash.Dash('chembl-explorer')
 server = app.server
@@ -66,7 +67,7 @@ COLORSCALE = [[0, "rgb(244,236,21)"], [0.3, "rgb(249,210,41)"], [0.4, "rgb(134,1
 
 def scatter_plot_3d(
 
-        target='Dihydrofolate reductase',
+        target='Integrin alpha-V/beta-3_PROTEIN COMPLEX_Homo sapiens_104292',
         x_type='le',
         y_type='lle',
         z_type='rank',
@@ -102,7 +103,7 @@ def scatter_plot_3d(
 
     data = []
 
-    target_df = df[df['target'] == target]
+    target_df = df[df['target_id'] == target]
 
     if z_type == 'rank':
         target_df['combined'] = target_df[y_type] * target_df[x_type]
@@ -129,7 +130,6 @@ def scatter_plot_3d(
         x=x,
         y=y,
         z=z,
-        name=target,
         mode='markers',
         marker=dict(
             colorscale='Viridis',
@@ -234,10 +234,10 @@ def summary_plot(df=df,
     not_drugs = df[df['max_phase'] < 4]
 
 
-    drugs = drugs.groupby('target', as_index=False).mean()
-    not_drugs = not_drugs.groupby('target', as_index=False).mean()
-    not_drugs = not_drugs[not_drugs['target'].isin(drugs['target'].unique())]
-    text = drugs['target'].tolist()
+    drugs = drugs.groupby('target_id', as_index=False).mean()
+    not_drugs = not_drugs.groupby('target_id', as_index=False).mean()
+    not_drugs = not_drugs[not_drugs['target_id'].isin(drugs['target_id'].unique())]
+    text = drugs['target_id'].tolist()
 
 
     x = [b for b in not_drugs[x_type].tolist()]
@@ -246,6 +246,10 @@ def summary_plot(df=df,
     xlabel = 'Mean ' + x_type + ' Discovery compounds'
     ylabel = 'Mean ' + x_type + ' Drugs'
     zlabel = z_type
+
+
+
+
 
     data.append(dict(
         x=x,
@@ -273,7 +277,7 @@ def summary_plot(df=df,
     layout = dict(
         font=dict(family='Raleway'),
         hovermode='closest',
-        margin=dict(r=20, t=0, l=0, b=0),
+        margin=dict(r=20, t=0, l=40, b=40),
         showlegend=False,
         legend=dict(orientation="h"),
 
@@ -312,6 +316,16 @@ def summary_plot(df=df,
         layout['yaxis'] = blackout_axis(layout['yaxis'])
         layout['font']['color'] = 'white'
 
+    max_val = max(max(x),max(y))
+
+    line = np.linspace(0,max_val,5)
+
+    data.append(dict(
+        x = line,
+        y = line,
+        mode = 'line'
+    ))
+
     return dict(data=data, layout=layout)
 
 
@@ -324,7 +338,7 @@ app.layout = html.Div([
 
     html.Div([
         html.H1('ChEMBL Explorer', id='header')
-    ], className='mui-row twelve columns', style={'position': 'relative', 'right': '15px'}),
+    ], className='mui-row ', style={'position': 'relative'}),
 
     # html.Div([
     #     html.Div([
@@ -404,7 +418,7 @@ app.layout = html.Div([
             # html.Img(id='chem_img', src=DRUG_IMG, style=dict(width='100%')),
             html.Iframe(
                 id='chem_img',
-                src="https://www.ebi.ac.uk/chembl/beta/embed/#mini_report_card/Compound/CHEMBL34259",
+                src="https://www.ebi.ac.uk/chembl/beta/embed/#mini_report_card/Compound/CHEMBL1046",
                 style={'width': '100%', 'height': '30vh', 'border': 'none'}
             ),
 
@@ -442,7 +456,7 @@ def target_store( plot_type, x_type, y_type, z_type,target_x,target_y):
         t_x = None
 
     j = {
-        'target':'Dihydrofolate reductase',
+        'target':'Plasminogen_SINGLE PROTEIN_Homo sapiens_12',
         'plot_type':plot_type,
         'x_type': x_type,
         'y_type':y_type,
@@ -455,7 +469,7 @@ def target_store( plot_type, x_type, y_type, z_type,target_x,target_y):
         j['target'] = j['target_x']
         j['target_y'] = j['target_x']
 
-    elif t_y is not None:
+    if t_y is not None:
         j['target'] = j['target_y']
         j['target_x'] = j['target_y']
 
