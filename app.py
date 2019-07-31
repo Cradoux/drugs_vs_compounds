@@ -12,7 +12,7 @@ import numpy as np
 app = dash.Dash('chembl-explorer')
 server = app.server
 
-df = pd.read_csv('lle_data.csv')
+df = pd.read_csv('lle_data_single_prot_human.csv')
 axes_opts = [{'label': i, 'value': i} for i in df.columns if i not in ['target_chemblid', 'cmpd_chemblid',
                                                                        'target']]
 
